@@ -1,0 +1,36 @@
+.logInForm::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    z-index: -20;
+}
+
+.Input::before {
+    content: "";
+    position: absolute;
+    background-color: black;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.Input input:focus-visible {
+    outline: none;
+}
+
+.Input input {
+    position: relative;
+    z-index: 20;
+}
+
+.Input button{
+    transition: transform .2s ease-in-out;
+}
+
+.Input input:focus ~ button {
+    transform: translate(-4px, -10px);
+}

@@ -1,0 +1,23 @@
+.profile {
+    position: relative;
+    z-index: 10;
+}
+
+.profile:hover div {
+    visibility: visible; /* 요소를 보이게 함 */
+    opacity: 1; /* 완전한 불투명도 설정 */
+    transform: scale(1); /* 정상 크기로 확대 */
+    z-index: 1; /* 다른 요소 위로 */
+    transition-delay: 0s; /* 나타날 때 지연 없음 */
+}
+
+.profile div {
+    visibility: hidden; /* 초기 상태에서는 감춤 */
+    opacity: 0; /* 투명하게 시작 */
+    transform: scale(0.9); /* 축소된 상태에서 시작 */
+    transition: transform 0.1s ease-in-out, opacity 0.1s ease-in-out, visibility 0s 0.1s; /* visibility는 애니메이션 종료 후 변경 */
+    position: absolute;
+    top: 35px;
+    right: -5px;
+    border-radius: 5px;
+}

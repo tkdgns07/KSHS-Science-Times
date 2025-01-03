@@ -1,0 +1,42 @@
+.header {
+    display: flex;
+    flex-direction: column;
+    width: 650px;
+}
+
+.header input {
+    width: 100%;
+    margin-bottom: 20px;
+    
+}
+
+.header input:focus-visible {
+    outline: none;
+}
+
+.thumbnailButton {
+    position: relative;
+}
+
+.thumbnailButton:hover img {
+    filter: brightness(0.5);
+    transition: filter 0.2s ease; /* 부드러운 애니메이션 (선택사항) */
+}
+
+.thumbnailButton:hover p {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+.imageInputButton {
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.1s ease;
+    @apply text-sm text-subtext rounded-md
+}
+
+.imageInputButton:hover {
+    background-color: rgb(228, 228, 228);
+}

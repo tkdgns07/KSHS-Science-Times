@@ -1,15 +1,21 @@
+'use client'
 import Image from "next/image"
-import Logo from "@/img/Science TIMEs_Logo.png"
 import styles from "./Header.module.css"
+import Link from "next/link"
+import SignInButton from "./ui/SignInButton"
 
 const Header = () =>{
     return (
-        <main className={`w-screen h-[60px] p-[20px] {styles.headerMain}`}>
-            <Image 
-                src={Logo}
-                alt="Sites Logo"
-                height={20}
-            />
+        <main className={`w-screen h-[60px] p-[20px] ${styles.headerMain} flex justify-between items-center z-50`}>
+            <Link href={{ pathname : '/' }}>
+                <Image 
+                    src='/img/Science TIMEs_Logo.png'
+                    alt="Sites Logo"
+                    width={120}
+                    height={20}
+                />
+            </Link>
+            <SignInButton></SignInButton>
         </main>
     )
 }

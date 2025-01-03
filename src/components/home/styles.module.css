@@ -1,10 +1,22 @@
-.mainSquare {
-    width: min(100vw, 100vh);
-    height: min(100vw, 100vh);
+.textArea div p {
+    font-family: 'GmarketSansMedium';
 }
 
-.left, .right {
-    flex: 1;
-    width: auto;
-    height: 100vh;
+.cardPa:hover {
+    transform: translate(-2px, -2px);
+}
+.cardPa:hover .cardCh {
+    transform: translate(2px, 2px);
+}
+
+.cardCh, .cardPa {
+    transition: transform 0.1s ease-in-out;
+}
+
+.cardButtonPa:hover{
+    transform : translate(-2px, -18px)
+}
+
+.cardButtonPa {
+    transition: transform 0.1s ease-in-out;
 }
