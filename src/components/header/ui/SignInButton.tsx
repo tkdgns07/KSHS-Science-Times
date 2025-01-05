@@ -9,18 +9,19 @@ const SignInButton: React.FC = () => {
     const pathname = usePathname();
     const { data: session } = useSession();
 
-    const handleSignOut = async () => {    
-        try {
-            await axios.delete("/api/auth/sessionApi", {
-                headers: {
-                  Authorization: `Bearer ${session?.user.token}`,
-                },
-            });
-            signOut({ callbackUrl: "/" });
-        } catch (error) {
-          console.error("Sign out failed:", error);
-        }
-    };    
+    // const handleSignOut = async () => {    
+    //     try {
+    //         await axios.delete("/api/auth/sessionApi", {
+    //             headers: {
+    //               Authorization: `Bearer ${session?.user.token}`,
+    //             },
+    //         });
+
+    //         signOut({ callbackUrl: "/" });
+    //     } catch (error) {
+    //       console.error("Sign out failed:", error);
+    //     }
+    // };
 
     return (
         <div>
@@ -38,7 +39,7 @@ const SignInButton: React.FC = () => {
                         </Link>
                         <button
                             className='bg-black rounded-md w-full p-[5px] mt-[5px]'
-                            onClick={handleSignOut}
+                            onClick={()=>signOut()}
                         >
                             <p className='font-bold text-sm flex items-center justify-center text-background'>로그아웃</p>
                         </button>

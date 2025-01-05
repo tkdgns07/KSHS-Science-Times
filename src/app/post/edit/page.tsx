@@ -124,6 +124,20 @@ export default function Page() {
         }
     };
 
+    const handleDelete = async () => {
+        setIsDeleting(true)
+        try {
+            await axios.delete(`../api/post/${id}`)
+
+            toast.success("삭제에 성공했습니다.")
+            router.push("/")
+        } catch (error) {
+            toast.error("삭제에 실패했습니다.")
+        } finally {
+            setIsDeleting(false)
+        }
+    }
+
     const setFieldFunc = (id: number) => {
         setField(id);
     };
@@ -291,12 +305,20 @@ export default function Page() {
                             />
                         )}
             
-            <button onClick={handleSave} className='w-[650px] bg-black rounded-md h-[40px] mb-[50px]'>
+            <button onClick={handleSave} className='w-[650px] bg-black rounded-md h-[40px] mb-[10px]'>
                             {isSaving ? (
                                 <p className='text-white'>저장중....</p>
                             
                             ) : (
                                 <p className='text-white'>저장</p>
+                            )}
+                        </button>
+                        <button onClick={handleDelete} className='w-[650px] bg-red-600 rounded-md h-[40px] mb-[50px]'>
+                            {isDeleting ? (
+                                <p className='text-white'>삭제중....</p>
+                            
+                            ) : (
+                                <p className='text-white'>삭제</p>
                             )}
                         </button>
                     </main>

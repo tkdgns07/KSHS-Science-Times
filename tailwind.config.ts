@@ -18,6 +18,7 @@ export default {
   			maintext: 'var(--maintext)',
   			subtext: 'var(--subtext)',
   			foreground: 'hsl(var(--foreground))',
+			grayc : "#323232",
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'

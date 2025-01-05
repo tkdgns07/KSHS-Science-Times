@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback, } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 interface PostInfo {
   id: number,
@@ -31,6 +32,7 @@ const HomePage = () => {
   const [postData, setPostData] = useState<PostData[]>([])
   const [skip, setSkip] = useState(0);
   const [disableScroll, setDisableScroll] = useState<boolean>(false)
+  const { data : session } = useSession();
 
   const fieldList = [
     { field: 6, color: '#780000', name: '수학' },
@@ -62,7 +64,7 @@ const getFieldInfo = (field: number, returnColor: boolean): string => {
 };
 
 const goToPost = (id : number) => {
-  router.push(`/post/read?id=${id}`)
+  router.push(`/post/edit?id=${id}`)
 }
 
   useEffect(() => {
@@ -97,7 +99,9 @@ const goToPost = (id : number) => {
   const getPostDataIn = async () => {
     try {
       setIsLoading(true)
-      const { data } = await axios.get(`/api/post/all/${skip}`)
+      const { data } = await axios.post(`/api/post/allUser/${skip}`, {
+        userEmail : session?.user.email
+      })
       
       const newPost : PostData[] = data.formattedPosts
 

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/header/Header";
 import { Toaster } from "sonner";
-import SessionProvider from "@/components/auth/SessionProvider";
-import SessionReloader from "@/components/auth/SessionReloader";
+import SessionProvider from "@/components/Provider/SessionProvider";
+import ReactQueryProvider from "@/components/Provider/ReactQueryProvider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,6 +15,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="kr">
       <head>
@@ -22,12 +23,12 @@ export default function RootLayout({
       </head>
       <body>
         <SessionProvider>
-          <SessionReloader>
-          <Header />
-            <div className="children">
-              {children}
-            </div>
-            </SessionReloader>
+          <ReactQueryProvider>
+            <Header />
+              <div className="children">
+                {children}
+              </div>
+            </ReactQueryProvider>
           </SessionProvider>
         <Toaster richColors />
       </body>

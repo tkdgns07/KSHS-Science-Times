@@ -55,10 +55,8 @@ export async function GET(
 export async function DELETE(req: Request, context: { params: { id: string } }) {
     const { id } = await context.params;
   
-    // id를 정수로 변환
     const postId = parseInt(id, 10);
   
-    // 유효하지 않은 id 처리
     if (isNaN(postId)) {
       return NextResponse.json(
         { error: '"id" 매개변수는 유효한 숫자여야 합니다.' },

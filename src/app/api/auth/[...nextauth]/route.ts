@@ -71,7 +71,6 @@ const authOptions: AuthOptions = {
         if (!isValidPassword) {
           throw new Error("Invalid password.");
         }
-
         return user;
       },
     }),
@@ -86,14 +85,14 @@ const authOptions: AuthOptions = {
   callbacks: {
     async session({ session, token }) {
       if (token) {
-        const sessionToken = await generateRandomPassword(session.user.email);
+        // const sessionToken = await generateRandomPassword(session.user.email);
 
         session.user = {
           id: token.id as string,
           name: session.user?.name || "",
           email: session.user?.email || "",
           image: session.user?.image || "",
-          token: sessionToken
+          // token: sessionToken
         };
       }
 

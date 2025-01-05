@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import prisma from "#prisma/client";
 
-export async function GET(request: Request, context: { params: { skip: string } }) {
+export async function POST(request: Request, context: { params: { skip: string } }) {
   const { skip } = await context.params;
-  
-    const skipNum = parseInt(skip, 10) * 6;
+  const body = await request.json()
+    const { userEmail } = body
+
+    const skipNum = parseInt(skip, 10) * 15;
   
     if (isNaN(skipNum)) {
       return NextResponse.json(
@@ -19,7 +21,10 @@ export async function GET(request: Request, context: { params: { skip: string } 
               createdAt: 'desc',
             },
             skip: skipNum,
-            take: 6,
+            take: 15,
+            where : { user : {
+                email : userEmail
+            } },
             select: {
               id: true,
               title: true,
