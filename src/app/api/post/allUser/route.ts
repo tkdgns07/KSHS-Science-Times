@@ -1,6 +1,19 @@
 import { NextResponse } from "next/server";
 import prisma from "#prisma/client";
 
+interface Post {
+  id: number;
+  title: string;
+  thumbnail: string | null;
+  details: string | null;
+  field: number;
+  createdAt: Date;
+  user: {
+    name: string | null; // Allow name to be null
+    image: string | null;
+  };
+}
+
 export async function POST(request: Request) {
     const body = await request.json();
     const { userEmail } = body
@@ -24,7 +37,7 @@ export async function POST(request: Request) {
         );
       }
     try {
-        const posts = await prisma.post.findMany({
+        const posts: Post[] = await prisma.post.findMany({
             where : { user : {
                 email : userEmail
             }},
