@@ -4,6 +4,7 @@ import Header from "@/components/header/Header";
 import { Toaster } from "sonner";
 import SessionProvider from "@/components/Provider/SessionProvider";
 import ReactQueryProvider from "@/components/Provider/ReactQueryProvider";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,7 +27,9 @@ export default function RootLayout({
           <ReactQueryProvider>
             <Header />
               <div className="children">
+                <Suspense>
                 {children}
+                </Suspense>
               </div>
             </ReactQueryProvider>
           </SessionProvider>

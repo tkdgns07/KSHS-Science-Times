@@ -1,5 +1,4 @@
-'use client';
-
+"use client";
 import dynamic from 'next/dynamic';
 import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import { useSession } from 'next-auth/react';
@@ -9,6 +8,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Loader from '@/components/ui/Loader';
+import { Suspense } from 'react'
 
 
 // Editor 컴포넌트를 동적으로 로드하며, 서버 사이드 렌더링을 비활성화합니다.
@@ -63,7 +63,7 @@ export default function Page() {
         }
 
         try {
-            const { data } = await axios.get<{ post: PostData; userInfo: UserInfo }>(`/api/post/${id}`);
+            const { data } = await axios.get<{ post: PostData; userInfo: UserInfo }>(`/api/post?id=${id}`);
 
             const postData = data.post
             setTitle(postData.title);
@@ -94,6 +94,7 @@ export default function Page() {
     }
     if (!clientLoad) {
         return (
+            <Suspense>
         <main className="w-full flex flex-col items-center">
             <div className={styles.header}>
                 {thumbnail && (
@@ -168,12 +169,15 @@ export default function Page() {
 
             <button className="w-[650px] py-[5px] text-white bg-black rounded-md mb-[30px]" onClick={goEdit}>편집하기</button>
         </main>
+        </Suspense>
     );
     } else {
         return (
+            <Suspense>
             <div className='w-full h-screen flex justify-center items-center'>
             <Loader />
-        </div>
+            </div>
+        </Suspense>
 
         )
     }

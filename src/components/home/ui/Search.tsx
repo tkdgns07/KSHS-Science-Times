@@ -1,89 +1,106 @@
-'use client'
-import { before } from 'node:test';
+'use client';
 import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
-const Search = () => {
+interface SearchProps {
+    initialContent? : string
+}
+
+const Search: React.FC<SearchProps> = ({ initialContent }) => {
     const [content, setContent] = useState('');
     const [inputUser, setInputUser] = useState(false);
     const [splitInput, setSplitInput] = useState({ before: '', after: '' });
+    const router = useRouter();
+
+    useEffect(() => {
+        if (initialContent){
+            setContent(initialContent)
+            console.log(content)
+        }
+    }, [])
 
     const spanRef = useRef<HTMLSpanElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleChangeAf = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSplitInput((prev) => ({
-            ...prev, // 이전 상태를 복사
-            after: e.target.value, // 변경할 값만 덮어쓰기
-        }));
-    };
-
-    const handleChangeBe = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSplitInput((prev) => ({
-            ...prev, // 이전 상태를 복사
-            before: e.target.value, // 변경할 값만 덮어쓰기
-        }));
-    };
-
-    useEffect(() => {
-        setContent()
-    })
-
-    useEffect(() => {
-        if (content.startsWith('@') && !inputUser) {
+        const value = e.target.value;
+        if (value.startsWith('@')) {
             setInputUser(true);
-
+            setSplitInput((prev) => ({
+                ...prev,
+                after: value.slice(1),
+            }));
+            if(!inputUser) {
+                setSplitInput((prev) => ({
+                    ...prev,
+                    before : "@"
+                }))
+            }
             if (inputRef.current) {
                 inputRef.current.focus();
             }
-
-            const index = content.indexOf(' ');
-            if (index !== -1) {
-                setContent(content.slice(0, index + 1) + '$%^' + content.slice(index + 1));
-            } else {
-                setContent(content + '$%^');
-            }
-        } else if (!content.startsWith('@') && inputUser) {
-            setContent((prevContent) => prevContent.replace('$%^', ''));
-            setInputUser(false);
+        } else {
+            setSplitInput((prev) => ({
+                ...prev,
+                after: value,
+            }));
         }
+    };
 
-        // `$%^`로 분리
-        const parts = content.split('$%^');
-        setSplitInput({
-            before: parts[0] || '',
-            after: parts[1] || '',
-        });
-    }, [content, inputUser]);
+    // `before` 변경 핸들러
+    const handleChangeBe = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setSplitInput((prev) => ({
+            ...prev,
+            before: value,
+        }));
+    };
+
+    useEffect(() => {
+        const updatedContent = `${splitInput.before}$%^${splitInput.after}`;
+        setContent(updatedContent);
+        if (!splitInput.before.startsWith("@")) {
+            setInputUser(false)
+        }
+    }, [splitInput]);
+
+    const goSearch = () => {
+        router.push(`/search?content=${content}`)
+    }
 
     return (
-        <div className="bg-grayc mb-[60px] px-[20px] py-[10px] rounded-full sticky top-[6px] z-40 flex">
-            <span
-                ref={spanRef}
-                className="absolute invisible whitespace-pre"
-            >
+        <div className="bg-grayc mb-[60px] px-[10px] py-[10px] rounded-full z-40 flex">
+            <span ref={spanRef} className="absolute invisible whitespace-pre">
                 {splitInput.before || '유저 검색'}
             </span>
             {inputUser && (
-                <div className="p-[5px] rounded-full bg-blue-600 flex items-center text-white">
+                <div className="p-[5px] rounded-full bg-blue-600 flex items-center text-white mr-[10px]">
                     <input
                         placeholder="유저 검색"
                         value={splitInput.before}
                         onChange={handleChangeBe}
                         ref={inputRef}
-                        className="bg-transparent focus:outline-none text-white text-sm ml-[5px]"
+                        className="bg-transparent focus:outline-none text-white text-sm m-0"
                         style={{
-                            width: `${spanRef.current?.offsetWidth || 50}px`,
-                            minWidth: '50px',
+                            width: `${spanRef.current?.offsetWidth || 30}px`,
+                            minWidth: '30px',
                         }}
                     />
                 </div>
             )}
             <input
-                placeholder="여기서 검색..."
+                placeholder={inputUser ? "제목 검색" : "@ 로 유저 검색"}
                 value={splitInput.after}
                 onChange={handleChangeAf}
                 className="text-lg bg-transparent focus:outline-none text-white w-[800px]"
             />
+            <button
+                onClick={goSearch}
+                className='hover:bg-gray-700 p-[10px] rounded-full duration-200'
+            >
+                <img src="/icons/search.svg" alt="search icon" className='w-[15px]'/>
+            </button>
         </div>
     );
 };

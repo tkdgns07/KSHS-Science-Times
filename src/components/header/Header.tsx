@@ -6,7 +6,7 @@ import SignInButton from "./ui/SignInButton"
 
 const Header = () =>{
     return (
-        <main className={`w-screen h-[60px] p-[20px] ${styles.headerMain} flex justify-between items-center z-50`}>
+        <main className={`w-screen h-[60px] p-[20px] ${styles.headerMain} flex justify-between items-center z-30`}>
             <Link href={{ pathname : '/' }}>
                 <Image 
                     src='/img/Science TIMEs_Logo.png'

@@ -14,18 +14,14 @@ export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
-    // 1) formData 추출
     const formData = await request.formData();
 
-    // 2) Editor.js Image Tool이 전송하는 파일 필드명이 'image'라고 가정
-    //    (설정에 따라 'file' 또는 다른 이름일 수 있으므로 확인 필요)
     const file = formData.get('file') as File | null;
 
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    // 3) File 객체를 Buffer로 변환
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 

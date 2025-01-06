@@ -58,7 +58,7 @@ const Editor: React.FC<EditorProps> = ({ initialContent = { blocks: [] }, onChan
             class: ImageTool,
             config: {
               endpoints: {
-                byFile: '/api/media/upload',
+                byFile: '/api/media/upload/image',
               },
               field: 'file',
               types: 'image/*',
@@ -67,7 +67,7 @@ const Editor: React.FC<EditorProps> = ({ initialContent = { blocks: [] }, onChan
           attaches: {
             class: AttachesTool,
             config: {
-              endpoint: '/api/media/upload',
+              endpoint: '/api/media/upload/file',
               field: 'file',
             },
           },

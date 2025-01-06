@@ -3,6 +3,7 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Suspense } from "react";
 
 export default function Page () {
     const param = useSearchParams().get('code')?.toString()
@@ -87,6 +88,7 @@ export default function Page () {
     };
       
     return (
+        <Suspense>
         <main
             className="flex items-center justify-center"
             style={{ height: "calc(100vh - 60px)" }}
@@ -169,5 +171,6 @@ export default function Page () {
                     </div>
                 )}
         </main>
+        </Suspense>
     )
 }

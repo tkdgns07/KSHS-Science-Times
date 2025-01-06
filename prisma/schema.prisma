@@ -10,7 +10,7 @@ datasource db {
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
-  name          String?
+  name          String?   @unique
   emailVerified DateTime?
   image         String?
   password      String
@@ -108,6 +108,11 @@ model PostComments {
 }
 
 model ImageDB {
+  url      String @unique
+  publicID String @id
+}
+
+model FileDB {
   url      String @unique
   publicID String @id
 }

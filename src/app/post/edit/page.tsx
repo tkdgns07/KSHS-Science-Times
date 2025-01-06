@@ -1,5 +1,4 @@
-'use client';
-
+"use client";
 import dynamic from 'next/dynamic';
 import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import { useSession } from 'next-auth/react';
@@ -9,6 +8,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Loader from '@/components/ui/Loader';
+import { Suspense } from 'react';
 
 // Editor 컴포넌트를 동적으로 로드하며, 서버 사이드 렌더링을 비활성화합니다.
 const Editor = dynamic(() => import('@/components/post/ui/Editor'), { ssr: false });
@@ -59,7 +59,7 @@ export default function Page() {
         }
 
         try {
-            const { data } = await axios.get<{ post: PostData; }>(`/api/post/${id}`);
+            const { data } = await axios.get<{ post: PostData; }>(`/api/post?id=${id}`);
 
             const postData = data.post
             setTitle(postData.title);
@@ -106,7 +106,7 @@ export default function Page() {
                 return;
             }
 
-            await axios.patch(`../api/post/${id}`, {
+            await axios.patch(`../api/post?id=${id}`, {
                 title,
                 thumbnail,
                 details,
@@ -127,7 +127,7 @@ export default function Page() {
     const handleDelete = async () => {
         setIsDeleting(true)
         try {
-            await axios.delete(`../api/post/${id}`)
+            await axios.delete(`../api/post?id=${id}`)
 
             toast.success("삭제에 성공했습니다.")
             router.push("/")
@@ -209,7 +209,7 @@ export default function Page() {
 
     if (!clientLoad) {
         return (
-            
+            <Suspense>
                         <main className="w-full flex flex-col items-center">
                         <div className={styles.header}>
                             {isUploading && <p>업로드 중...</p>}
@@ -304,8 +304,8 @@ export default function Page() {
                                 initialContent={content}
                             />
                         )}
-            
-            <button onClick={handleSave} className='w-[650px] bg-black rounded-md h-[40px] mb-[10px]'>
+            <div className='w-[650px] flex'>
+            <button onClick={handleSave} className='w-full bg-black rounded-md h-[40px] mb-[10px] mr-[10px]'>
                             {isSaving ? (
                                 <p className='text-white'>저장중....</p>
                             
@@ -313,7 +313,7 @@ export default function Page() {
                                 <p className='text-white'>저장</p>
                             )}
                         </button>
-                        <button onClick={handleDelete} className='w-[650px] bg-red-600 rounded-md h-[40px] mb-[50px]'>
+                        <button onClick={handleDelete} className='w-full bg-red-600 rounded-md h-[40px] mb-[50px]'>
                             {isDeleting ? (
                                 <p className='text-white'>삭제중....</p>
                             
@@ -321,14 +321,17 @@ export default function Page() {
                                 <p className='text-white'>삭제</p>
                             )}
                         </button>
+                        </div>
                     </main>
-        
+                    </Suspense>
         )
     }else {
         return (
+            <Suspense>
             <div className='w-full h-screen flex justify-center items-center'>
                 <Loader />
             </div>
+            </Suspense>
         );
     
     }

@@ -1,30 +1,38 @@
 import { NextResponse } from "next/server";
 import prisma from "#prisma/client";
 
-export async function POST(request: Request, context: { params: { skip: string } }) {
-  const { skip } = await context.params;
-  const body = await request.json()
+export async function POST(request: Request) {
+    const body = await request.json();
     const { userEmail } = body
-
-    const skipNum = parseInt(skip, 10) * 15;
   
-    if (isNaN(skipNum)) {
+    const url = new URL(request.url);
+
+    const skip = url.searchParams.get('skip');
+    if (!skip) {
       return NextResponse.json(
         { error: '"id" 매개변수는 유효한 숫자여야 합니다.' },
         { status: 400 }
       );
     }
-
+    
+      const skipNum = parseInt(skip, 10) * 6;
+    
+      if (isNaN(skipNum)) {
+        return NextResponse.json(
+          { error: '"id" 매개변수는 유효한 숫자여야 합니다.' },
+          { status: 400 }
+        );
+      }
     try {
         const posts = await prisma.post.findMany({
+            where : { user : {
+                email : userEmail
+            }},
             orderBy: {
               createdAt: 'desc',
             },
             skip: skipNum,
-            take: 15,
-            where : { user : {
-                email : userEmail
-            } },
+            take: 6,
             select: {
               id: true,
               title: true,

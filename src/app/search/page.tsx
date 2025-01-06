@@ -1,11 +1,12 @@
 'use client';
 import Post from '@/components/home/ui/Post';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Search from '@/components/home/ui/Search';
 import Loader from '@/components/ui/Loader';
+import { Suspense } from 'react';
 
 interface PostInfo {
   id: number;
@@ -30,9 +31,19 @@ interface FetchResponse {
   formattedPosts: PostData[];
 }
 
-export default function Home () {
-
+export default function Home() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [contentParam, setContentParam] = useState<string | null>(null);
+  const loader = useRef<HTMLDivElement | null>(null);
+
+  const param = searchParams.get('content')?.toString();
+
+  useEffect(() => {
+    if (param) {
+      setContentParam(param);
+    }
+  }, [searchParams]);
 
   const fieldList = [
     { field: 6, color: '#780000', name: '수학' },
@@ -41,19 +52,14 @@ export default function Home () {
     { field: 4, color: '#003049', name: '생명과학' },
     { field: 5, color: '#588157', name: '지구과학' },
     { field: 1, color: '#669bbc', name: '정보' },
-];
+  ];
 
-async function fetchPosts(pageParam: number): Promise<FetchResponse> {
-  const { data } = await axios.get(`/api/post/all?skip=${pageParam}`);
-  const result: FetchResponse = data
-  return result
-};
-
-const goToPost = (id : number) => {
-  router.push(`/post/edit?id=${id}`)
-}
-
-  const loader = useRef<HTMLDivElement | null>(null);
+  async function fetchPosts(pageParam: number): Promise<FetchResponse> {
+    const { data } = await axios.post(`/api/post/all?skip=${pageParam}`, {
+      contentParam,
+    });
+    return data;
+  }
 
   const {
     data,
@@ -61,16 +67,21 @@ const goToPost = (id : number) => {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
+    refetch,
   } = useInfiniteQuery<FetchResponse>({
-    queryKey: ['posts'],
+    queryKey: ['posts', contentParam],
     queryFn: ({ pageParam = 0 }) => fetchPosts(pageParam as number),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.formattedPosts.length === 6 ? allPages.length : undefined;
     },
+    enabled: !!contentParam, // contentParam 값이 있을 때만 실행
   });
 
-  const posts = data?.pages.flatMap((page) => page.formattedPosts) || [];
+  useEffect(() => {
+    if (!contentParam) return;
+    refetch(); // contentParam이 변경되면 데이터를 다시 로드
+  }, [contentParam, refetch]);
 
   useEffect(() => {
     if (!hasNextPage || isFetchingNextPage) return;
@@ -96,23 +107,29 @@ const goToPost = (id : number) => {
     };
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  const goToPost = (id: number) => {
+    router.push(`/post/edit?id=${id}`);
+  };
+
   const getFieldInfo = (field: number, returnColor: boolean): string => {
-    const fieldItem = fieldList.find(item => item.field === field);
+    const fieldItem = fieldList.find((item) => item.field === field);
     if (fieldItem) {
-        return returnColor ? fieldItem.color : fieldItem.name;
+      return returnColor ? fieldItem.color : fieldItem.name;
     }
     return returnColor ? '#000000' : 'Unknown';
   };
-  
+
+  const posts = data?.pages.flatMap((page) => page.formattedPosts) || [];
 
   if (isLoading) {
     return <main className='flex justify-center items-center h-full'><Loader></Loader></main>;
   }
 
   return (
-    <main className="flex flex-col h-full w-full items-center"> 
-      <div className='sticky top-[6px] z-50'>
-        <Search></Search>
+    <Suspense>
+    <main className="flex flex-col h-full w-full items-center">
+      <div className="top-[6px] z-50 fixed w-full flex justify-center">
+        <Search initialContent={param}/>
       </div>
       <div className={`grid md:grid-cols-3 grid-cols-2 gap-10`}>
         {posts.map((item: PostData) => (
@@ -134,6 +151,6 @@ const goToPost = (id : number) => {
       {isFetchingNextPage && <p className="text-center my-4"><Loader /></p>}
       <div ref={loader} />
     </main>
-
+    </Suspense>
   );
-};
+}

@@ -1,4 +1,4 @@
-import NextAuth, { AuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "#prisma/client";
@@ -41,7 +41,7 @@ async function generateRandomPassword(email: string): Promise<string> {
   }
 }
 
-const authOptions: AuthOptions = {
+const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
@@ -110,6 +110,5 @@ const authOptions: AuthOptions = {
   },
 };
 
-export { authOptions };
-export const POST = NextAuth(authOptions);
 export const GET = NextAuth(authOptions);
+export const POST = NextAuth(authOptions);

@@ -1,18 +1,19 @@
-'use client'
-import Post from "@/components/home/ui/Post";
-import { useState, useEffect, useRef, useCallback, } from "react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import { toast } from "sonner";
-import { useSession } from "next-auth/react";
+'use client';
+import Post from '@/components/home/ui/Post';
+import { useEffect, useRef } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import Loader from '@/components/ui/Loader';
+import { useSession } from 'next-auth/react';
 
 interface PostInfo {
-  id: number,
+  id: number;
   title: string;
   thumbnail: string;
   details: string;
   field: number;
-  createdAt : Date;
+  createdAt: Date;
 }
 
 interface UserInfo {
@@ -21,18 +22,18 @@ interface UserInfo {
 }
 
 interface PostData {
-  post : PostInfo,
-  user : UserInfo
+  post: PostInfo;
+  user: UserInfo;
 }
 
-const HomePage = () => {
+interface FetchResponse {
+  formattedPosts: PostData[];
+}
+
+export default function Home () {
+    const { data : session } = useSession()
+
   const router = useRouter();
-  const [windowWidth, setWindowWidth] = useState<number>(0);
-  const [cardNum, setCardNum] = useState<number>(0);
-  const [postData, setPostData] = useState<PostData[]>([])
-  const [skip, setSkip] = useState(0);
-  const [disableScroll, setDisableScroll] = useState<boolean>(false)
-  const { data : session } = useSession();
 
   const fieldList = [
     { field: 6, color: '#780000', name: '수학' },
@@ -43,128 +44,84 @@ const HomePage = () => {
     { field: 1, color: '#669bbc', name: '정보' },
 ];
 
-const checkPost = async (id: number) => {
-    try {
-        const { data } = await axios.get<PostData[]>(`/api/post/${id}`);
-
-        setPostData(data)
-    } catch (error) {
-        console.error("Error fetching post details:", error);
-    
-        throw new Error("Failed to fetch post details.");
-    }
-}
-
-const getFieldInfo = (field: number, returnColor: boolean): string => {
-  const fieldItem = fieldList.find(item => item.field === field);
-  if (fieldItem) {
-      return returnColor ? fieldItem.color : fieldItem.name;
-  }
-  return returnColor ? '#000000' : 'Unknown';
+async function fetchPosts(pageParam: number): Promise<FetchResponse> {
+  const { data } = await axios.post(`/api/post/all?skip=${pageParam}`, {
+    useEmail : session?.user.email
+  });
+  const result: FetchResponse = data
+  return result
 };
 
 const goToPost = (id : number) => {
   router.push(`/post/edit?id=${id}`)
 }
 
-  useEffect(() => {
-    // 초기 화면 너비 설정
-    const updateWidth = () => setWindowWidth(window.innerWidth);
-
-    updateWidth();
-
-    window.addEventListener("resize", updateWidth);
-
-    // 컴포넌트 언마운트 시 이벤트 리스너 제거
-    return () => {
-      window.removeEventListener("resize", updateWidth);
-    };
-  }, []);
-
-  useEffect(() => {
-    if(windowWidth < 580 && windowWidth !== 0) {
-      router.push("/error")
-    }else{
-      const num = Math.floor((windowWidth - 580) / 300)
-      setCardNum(num)
-    }
-  }, [windowWidth])
-
-
-
-
-
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const getPostDataIn = async () => {
-    try {
-      setIsLoading(true)
-      const { data } = await axios.post(`/api/post/allUser/${skip}`, {
-        userEmail : session?.user.email
-      })
-      
-      const newPost : PostData[] = data.formattedPosts
-
-      if (newPost.length < 15) {
-        setDisableScroll(true)
-        setPostData(prevPosts => [...prevPosts, ...newPost]);
-        console.log(disableScroll)
-        return
-      }
-
-      setPostData(prevPosts => [...prevPosts, ...newPost]);
-      console.log("dd")
-
-    } catch (error) {
-      toast.error("데이터 처리에 실패했습니다.")
-    } finally {
-      setIsLoading(false)
-      setSkip(prevSkip => prevSkip + 1);
-    }
-  }
-
   const loader = useRef<HTMLDivElement | null>(null);
 
-  const addNext15Ids = useCallback(() => {
-    getPostDataIn()
-  }, []);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery<FetchResponse>({
+    queryKey: ['posts'],
+    queryFn: ({ pageParam = 0 }) => fetchPosts(pageParam as number),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.formattedPosts.length === 6 ? allPages.length : undefined;
+    },
+  });
+
+  const posts = data?.pages.flatMap((page) => page.formattedPosts) || [];
 
   useEffect(() => {
-      const options = {
-          root: null,
-          rootMargin: '20px',
-          threshold: 1.0
-      };
+    if (!hasNextPage || isFetchingNextPage) return;
 
-      const observer = new IntersectionObserver((entries) => {
-          const target = entries[0];
-          if (target.isIntersecting && (!isLoading && !disableScroll)) {
-              addNext15Ids();
-          }
-      }, options);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0];
+        if (target.isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1.0 }
+    );
 
+    if (loader.current) {
+      observer.observe(loader.current);
+    }
+
+    return () => {
       if (loader.current) {
-          observer.observe(loader.current);
+        observer.unobserve(loader.current);
       }
+    };
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-      return () => {
-          if (loader.current) {
-              observer.unobserve(loader.current);
-          }
-      };
-  }, [addNext15Ids, isLoading]);
+  const getFieldInfo = (field: number, returnColor: boolean): string => {
+    const fieldItem = fieldList.find(item => item.field === field);
+    if (fieldItem) {
+        return returnColor ? fieldItem.color : fieldItem.name;
+    }
+    return returnColor ? '#000000' : 'Unknown';
+  };
+  
+
+  if (isLoading) {
+    return <main className='flex justify-center items-center h-full'><Loader></Loader></main>;
+  }
 
   return (
-    <main className="flex flex-col h-full w-full items-center">
-        <div className="w-full flex flex-col items-center mb-[30px]">
+    <main className="flex flex-col h-full w-full items-center"> 
+    <div className="w-full flex flex-col items-center mb-[30px]">
             <p className="font-light text-black text-2xl mb-[10px]">내가 쓴 글</p>
             <span className="w-[300px] h-[1px] bg-black"></span>
         </div>
       <div className={`grid md:grid-cols-3 grid-cols-2 gap-10`}>
-      {postData.map((item, index) => {
-        return (
+        {posts.map((item: PostData) => (
           <Post
-            key={index}
+            key={item.post.id}
             id={item.post.id}
             width={300}
             title={item.post.title}
@@ -176,13 +133,11 @@ const goToPost = (id : number) => {
             goPost={goToPost}
             fieldColor={getFieldInfo}
           />
-        )
-      })}
+        ))}
       </div>
-      {!isLoading && <p className="text-center my-4">데이터를 로드 중입니다...</p>}
+      {isFetchingNextPage && <p className="text-center my-4"><Loader /></p>}
       <div ref={loader} />
     </main>
-  );
-}
 
-export default HomePage
+  );
+};

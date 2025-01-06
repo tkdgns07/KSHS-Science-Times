@@ -47,6 +47,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
     }
 
+    const userName = await prisma.user.findMany({
+      where : {
+        name
+      }
+    })
+
+    if (userName) {
+      return NextResponse.json({ error: "Existing Name" }, { status: 400 });
+    }
+
     // 비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 10);
 

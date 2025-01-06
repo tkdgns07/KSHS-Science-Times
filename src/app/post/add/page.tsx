@@ -1,5 +1,4 @@
-'use client';
-
+"use client";
 import React, { useState, ChangeEvent, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import styles from '../styles.module.css';
