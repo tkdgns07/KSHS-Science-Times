@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "#prisma/client";
+import prisma from "#/prisma/client";
 import bcrypt from "bcrypt";
 
 // 무작위 색상을 생성하는 함수

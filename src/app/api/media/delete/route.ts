@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
-import prisma from "#prisma/client"
+import prisma from "#/prisma/client"
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',

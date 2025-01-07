@@ -1,7 +1,7 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import prisma from "#prisma/client";
+import prisma from "#/prisma/client";
 import bcrypt from "bcrypt";
 
 async function generateRandomPassword(email: string): Promise<string> {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "#prisma/client";
+import prisma from "#/prisma/client";
 
 // Define the type for a post
 interface Post {

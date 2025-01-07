@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "#prisma/client";
+import prisma from "#/prisma/client";
 
 function generateRandomString(length: number): string {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
