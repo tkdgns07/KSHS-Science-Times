@@ -126,31 +126,35 @@ export default function Home() {
   }
 
   return (
-    <Suspense>
-    <main className="flex flex-col h-full w-full items-center">
-      <div className="top-[6px] z-50 fixed w-full flex justify-center">
-        <Search initialContent={param}/>
-      </div>
-      <div className={`grid md:grid-cols-3 grid-cols-2 gap-10`}>
-        {posts.map((item: PostData) => (
-          <Post
-            key={item.post.id}
-            id={item.post.id}
-            width={300}
-            title={item.post.title}
-            thumbnail={item.post.thumbnail}
-            details={item.post.details}
-            field={item.post.field}
-            name={item.user.name}
-            image={item.user.image}
-            goPost={goToPost}
-            fieldColor={getFieldInfo}
-          />
-        ))}
-      </div>
-      {isFetchingNextPage && <p className="text-center my-4"><Loader /></p>}
-      <div ref={loader} />
-    </main>
+    <Suspense fallback={<Loader />}>
+      <main className="flex flex-col h-full w-full items-center">
+        <div className="top-[6px] z-50 fixed w-full flex justify-center">
+          <Search initialContent={param} />
+        </div>
+        <div className={`grid md:grid-cols-3 grid-cols-2 gap-10`}>
+          {posts.length > 0 ? (
+            posts.map((item: PostData) => (
+              <Post
+                key={item.post.id}
+                id={item.post.id}
+                width={300}
+                title={item.post.title}
+                thumbnail={item.post.thumbnail}
+                details={item.post.details}
+                field={item.post.field}
+                name={item.user.name}
+                image={item.user.image}
+                goPost={goToPost}
+                fieldColor={getFieldInfo}
+              />
+            ))
+          ) : (
+            <p className="text-xl font-bold">원하는 결과를 찾지 못했습니다.</p>
+          )}
+        </div>
+        {isFetchingNextPage && <p className="text-center my-4"><Loader /></p>}
+        <div ref={loader} />
+      </main>
     </Suspense>
   );
-}
+    }

@@ -58,7 +58,7 @@ const Editor: React.FC<EditorProps> = ({ initialContent = { blocks: [] }, onChan
             class: ImageTool,
             config: {
               endpoints: {
-                byFile: '/api/media/upload/image',
+                byFile: '/api/media/upload/im',
               },
               field: 'file',
               types: 'image/*',
