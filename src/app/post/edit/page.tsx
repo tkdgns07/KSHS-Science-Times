@@ -32,6 +32,7 @@ export default function Page() {
     const [field, setField] = useState<number | undefined>(undefined);
     const [isSaving, setIsSaving] = useState(false);
     const [clientLoad, setClientLoad] = useState(true);
+    const [user, setUser] = useState("");
 
     const fieldList = [
         { field: 6, color: '#780000', name: '수학' },
@@ -41,6 +42,13 @@ export default function Page() {
         { field: 5, color: '#588157', name: '지구과학' },
         { field: 1, color: '#669bbc', name: '정보' },
     ];
+
+    useEffect(() => {
+        if (!session || session.user.id == user) {
+            toast.warning("페이지를 다룰 권한이 없습니다.")
+            router.push("/")
+        }
+    }, [title])
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { data: session, status } = useSession();
@@ -67,6 +75,7 @@ export default function Page() {
             setDetails(postData.details);
             setContent(postData.content);
             setField(postData.field);
+            setUser(postData.createdBy)
 
             if (postData.createdBy !== session?.user.id && status == "authenticated") {
                 router.push("/error")
