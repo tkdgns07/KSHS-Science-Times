@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     const { name, email, password } = body;
 
     if (!isValidEmail(email)) {
-      return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+      return NextResponse.json({ error: "학교 계정으로 인증해주세요." }, { status: 400 });
     }
 
     const userName = await prisma.user.findMany({
@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    if (userName) {
-      return NextResponse.json({ error: "Existing Name" }, { status: 400 });
+    if (!userName) {
+      return NextResponse.json({ error: "존재하는 이름입니다" }, { status: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
