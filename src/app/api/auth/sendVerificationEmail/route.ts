@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
-import prisma from "#/prisma/client"
+import prisma from "../../../../../prisma/client";
 import crypto from "crypto";
 
 const sendVerificationEmail = async (email: string, verificationCode: string) => {
