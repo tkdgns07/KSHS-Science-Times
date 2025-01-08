@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       );
     }
     
-      const skipNum = parseInt(skip, 10) * 6;
+      const skipNum = parseInt(skip, 10) * 9;
     
       if (isNaN(skipNum)) {
         return NextResponse.json(
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
               createdAt: 'desc',
             },
             skip: skipNum,
-            take: 6,
+            take: 9,
             select: {
               id: true,
               title: true,

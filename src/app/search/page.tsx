@@ -73,7 +73,7 @@ export default function Home() {
     queryFn: ({ pageParam = 0 }) => fetchPosts(pageParam as number),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
-      return lastPage.formattedPosts.length === 6 ? allPages.length : undefined;
+      return lastPage.formattedPosts.length === 9 ? allPages.length : undefined;
     },
     enabled: !!contentParam, // contentParam 값이 있을 때만 실행
   });

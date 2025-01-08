@@ -63,8 +63,8 @@ export async function POST(request: Request) {
     .filter((post) => post.tagCount > 0)
     .sort((a, b) => b.tagCount - a.tagCount);
 
-  const startIndex = skipInt * 6;
-  const paginatedPosts = sortedPosts.slice(startIndex, startIndex + 6);
+  const startIndex = skipInt * 9;
+  const paginatedPosts = sortedPosts.slice(startIndex, startIndex + 9);
 
   const postsResult = paginatedPosts.map(({ tagCount, ...post }) => post);
 
@@ -101,7 +101,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const skipNum = parseInt(skip, 10) * 6;
+  const skipNum = parseInt(skip, 10) * 9;
 
   if (isNaN(skipNum)) {
     return NextResponse.json(
@@ -116,7 +116,7 @@ export async function GET(request: Request) {
         createdAt: "desc",
       },
       skip: skipNum,
-      take: 6,
+      take: 9,
       select: {
         id: true,
         title: true,

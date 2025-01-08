@@ -79,7 +79,7 @@ const {
   initialPageParam: 0,
   enabled: !!session?.user?.email, // session 값이 없으면 비활성화
   getNextPageParam: (lastPage, allPages) => {
-    return lastPage.formattedPosts.length === 6 ? allPages.length : undefined;
+    return lastPage.formattedPosts.length === 9 ? allPages.length : undefined;
   },
 });
 

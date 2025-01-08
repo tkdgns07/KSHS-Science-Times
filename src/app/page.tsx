@@ -62,7 +62,7 @@ async function fetchPosts(pageParam: number): Promise<FetchResponse> {
     queryFn: ({ pageParam = 0 }) => fetchPosts(pageParam as number),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
-      return lastPage.formattedPosts.length === 6 ? allPages.length : undefined;
+      return lastPage.formattedPosts.length === 9 ? allPages.length : undefined;
     },
   });
 
