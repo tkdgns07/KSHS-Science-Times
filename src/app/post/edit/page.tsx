@@ -13,26 +13,31 @@ import { Suspense } from 'react';
 // Editor 컴포넌트를 동적으로 로드하며, 서버 사이드 렌더링을 비활성화합니다.
 const Editor = dynamic(() => import('@/components/post/ui/Editor'), { ssr: false });
 
-interface PostData {
+interface PostInfo {
+    id: number;
     title: string;
     thumbnail: string;
     details: string;
-    content: any;
-    createdBy: string;
     field: number;
+    content : any;
+}
+  
+interface UserInfo {
+    name: string;
+    image: string;
+}
+  
+interface PostData {
+    post: PostInfo;
+    user: UserInfo;
 }
 
 export default function Page() {
-    const [title, setTitle] = useState('');
-    const [thumbnail, setThumbnail] = useState<string | null>(null); // 초기값을 null로 설정
-    const [details, setDetails] = useState('');
-    const [content, setContent] = useState<any | null>(null); // 초기값을 null로 설정
     const [isUploading, setIsUploading] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [field, setField] = useState<number | undefined>(undefined);
     const [isSaving, setIsSaving] = useState(false);
     const [clientLoad, setClientLoad] = useState(true);
-    const [user, setUser] = useState("");
+    const [postData, setPostData] = useState<PostData>()
 
     const fieldList = [
         { field: 6, color: '#780000', name: '수학' },
@@ -42,13 +47,6 @@ export default function Page() {
         { field: 5, color: '#588157', name: '지구과학' },
         { field: 1, color: '#669bbc', name: '정보' },
     ];
-
-    useEffect(() => {
-        if (!session || session.user.id == user) {
-            toast.warning("페이지를 다룰 권한이 없습니다.")
-            router.push("/")
-        }
-    }, [title])
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { data: session, status } = useSession();
@@ -67,18 +65,13 @@ export default function Page() {
         }
 
         try {
-            const { data } = await axios.get<{ post: PostData; }>(`/api/post?id=${id}`);
+            const { data } = await axios.get(`/api/post?id=${id}`);
 
-            const postData = data.post
-            setTitle(postData.title);
-            setThumbnail(postData.thumbnail);
-            setDetails(postData.details);
-            setContent(postData.content);
-            setField(postData.field);
-            setUser(postData.createdBy)
+            setPostData(data)
 
-            if (postData.createdBy !== session?.user.id && status == "authenticated") {
-                router.push("/error")
+            if (postData && postData.user.name !== session?.user.name && session) {
+                toast.warning("페이지를 다룰 권한이 없습니다.")
+                router.push("/")
                 return;
             }
         } catch (error) {
@@ -98,30 +91,25 @@ export default function Page() {
     const handleSave = async () => {
         setIsSaving(true)
         try {
-            if (!title) {
+            if (!postData?.post.title) {
                 toast.warning('제목을 입력해주세요');
                 return;
             }
-            if (!thumbnail) {
+            if (!postData.post.thumbnail) {
                 toast.warning('썸네일 이미지를 업로드해주세요');
                 return;
             }
-            if (!details) {
+            if (!postData.post.details) {
                 toast.warning('설명을 입력해주세요');
                 return;
             }
-            if (!field) {
+            if (!postData.post.field) {
                 toast.warning('분야를 설정해주세요.');
                 return;
             }
 
             await axios.patch(`../api/post?id=${id}`, {
-                title,
-                thumbnail,
-                details,
-                content,
-                userId: session?.user.id, // 'useId' -> 'userId'로 수정
-                field,
+                postData
             });
 
 
@@ -148,7 +136,16 @@ export default function Page() {
     }
 
     const setFieldFunc = (id: number) => {
-        setField(id);
+        setPostData((prev) => {
+            if (prev)
+            return {
+                ...prev,
+                post: {
+                    ...prev.post,
+                    field : id,
+                },
+            };
+        });
     };
 
     const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -170,7 +167,16 @@ export default function Page() {
             const data = await res.json();
 
             if (data?.success === 1 && data?.file?.url) {
-                setThumbnail(data.file.url);
+                setPostData((prev) => {
+                    if (prev)
+                    return {
+                        ...prev,
+                        post: {
+                            ...prev.post,
+                            thumbnail : data.file.url,
+                        },
+                    };
+                });
                 toast.success('이미지 업로드 성공!');
             } else {
                 toast.error('업로드 중 에러가 발생했습니다.');
@@ -183,17 +189,26 @@ export default function Page() {
     };
 
     const deleteImg = async () => {
-        if (!thumbnail) {
+        if (!postData?.post.thumbnail) {
             toast.error('삭제할 이미지가 없습니다.');
             return;
         }
 
         setIsDeleting(true);
         try {
-            await fetch('/api/media/delete?img=' + encodeURIComponent(thumbnail), {
+            await fetch('/api/media/delete?img=' + encodeURIComponent(postData?.post.thumbnail), {
                 method: 'DELETE',
             });
-            setThumbnail(null); // 삭제 시 null로 설정
+            setPostData((prev) => {
+                if (prev)
+                return {
+                    ...prev,
+                    post: {
+                        ...prev.post,
+                        thumbnail : "",
+                    },
+                };
+            });
             toast.success('이미지가 삭제되었습니다.');
         } catch {
             toast.error('삭제 중 에러가 발생했습니다.');
@@ -214,19 +229,19 @@ export default function Page() {
         }, 5 * 60 * 1000); // 5분
 
         return () => clearInterval(interval);
-    }, [title, thumbnail, details, content, field]); // 의존성 배열에 상태 추가
+    }, [postData]); // 의존성 배열에 상태 추가
 
-    if (!clientLoad) {
+    if (!clientLoad || postData) {
         return (
             <Suspense>
                         <main className="w-full flex flex-col items-center">
                         <div className={styles.header}>
                             {isUploading && <p>업로드 중...</p>}
             
-                            {thumbnail ? (
+                            {postData?.post.thumbnail ? (
                                 <button className={styles.thumbnailButton} onClick={deleteImg}>
                                     <img
-                                        src={thumbnail}
+                                        src={postData?.post.thumbnail}
                                         alt="업로드된 썸네일"
                                         className="w-[650px] object-cover mb-[20px]"
                                         onError={(e) => {
@@ -273,18 +288,41 @@ export default function Page() {
                                     </button>
                                 </div>
                             )}
-            
                             <input
                                 placeholder="Title"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
+                                value={postData?.post.title}
+                                onChange={(e) => {
+                                    setPostData((prev) => {
+                                        if (prev) {
+                                            return {
+                                                ...prev,
+                                                post: {
+                                                    ...prev.post,
+                                                    title: e.target.value,
+                                                },
+                                            };    
+                                        }
+                                    });
+                                }}
                                 className="text-3xl font-bold w-full mb-4"
                             />
             
                             <input
                                 placeholder="Details"
-                                value={details}
-                                onChange={(e) => setDetails(e.target.value)}
+                                value={postData?.post.details}
+                                onChange={(e) => {
+                                    setPostData((prev) => {
+                                        if (prev) {
+                                            return {
+                                                ...prev,
+                                                post: {
+                                                    ...prev.post,
+                                                    details: e.target.value,
+                                                },
+                                            };    
+                                        }
+                                    });
+                                }}
                                 className="w-full mb-4"
                             />
             
@@ -294,7 +332,7 @@ export default function Page() {
                                         key={item.field}
                                         className="flex justify-center items-center text-white text-xs p-[5px] rounded-full duration-100"
                                         style={{
-                                            backgroundColor: field === item.field ? item.color : '#bcbcbc',
+                                            backgroundColor: postData?.post.field === item.field ? item.color : '#bcbcbc',
                                         }}
                                         onClick={() => setFieldFunc(item.field)}
                                     >
@@ -306,11 +344,20 @@ export default function Page() {
                         </div>
             
                         {/* Editor 컴포넌트를 조건부로 렌더링 */}
-                        {content && (
+                        {postData?.post.content && (
                             <Editor
                                 key={id} // id를 key로 사용하여 콘텐츠 변경 시 Editor 재마운트
-                                onChange={(data) => setContent(data)}
-                                initialContent={content}
+                                onChange={(data) => setPostData((prev) => {
+                                    if (prev)
+                                    return {
+                                        ...prev,
+                                        post: {
+                                            ...prev.post,
+                                            content: data,
+                                        },
+                                    };
+                                })}
+                                initialContent={postData?.post.content}
                             />
                         )}
             <div className='w-[650px] flex'>

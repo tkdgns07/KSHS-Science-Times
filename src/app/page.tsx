@@ -49,10 +49,6 @@ async function fetchPosts(pageParam: number): Promise<FetchResponse> {
   return result
 };
 
-const goToPost = (id : number) => {
-  router.push(`/post/edit?id=${id}`)
-}
-
   const loader = useRef<HTMLDivElement | null>(null);
 
   const {
@@ -126,7 +122,6 @@ const goToPost = (id : number) => {
             field={item.post.field}
             name={item.user.name}
             image={item.user.image}
-            goPost={goToPost}
             fieldColor={getFieldInfo}
           />
         ))}

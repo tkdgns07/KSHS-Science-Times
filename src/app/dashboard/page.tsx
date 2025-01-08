@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Loader from '@/components/ui/Loader';
 import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 
 interface PostInfo {
   id: number;
@@ -31,9 +32,16 @@ interface FetchResponse {
 }
 
 export default function Home () {
-    const { data : session } = useSession()
+    const { data : session, status } = useSession()
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (status == "unauthenticated") {
+      toast.warning("로그인 해주세요.")
+      router.push("/signin")
+    }
+  }, [status])
 
   const fieldList = [
     { field: 6, color: '#780000', name: '수학' },
@@ -44,34 +52,36 @@ export default function Home () {
     { field: 1, color: '#669bbc', name: '정보' },
 ];
 
-async function fetchPosts(pageParam: number): Promise<FetchResponse> {
-  const { data } = await axios.post(`/api/post/all?skip=${pageParam}`, {
-    useEmail : session?.user.email
-  });
-  const result: FetchResponse = data
-  return result
-};
+const loader = useRef<HTMLDivElement | null>(null);
 
-const goToPost = (id : number) => {
-  router.push(`/post/edit?id=${id}`)
+async function fetchPosts(pageParam: number): Promise<FetchResponse> {
+  if (!session?.user?.email) {
+    throw new Error("Session email is not available");
+  }
+  
+  const { data } = await axios.post(`/api/post/allUser?skip=${pageParam}`, {
+    userEmail: session.user.email,
+  });
+
+  const result: FetchResponse = data;
+  return result;
 }
 
-  const loader = useRef<HTMLDivElement | null>(null);
-
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-  } = useInfiniteQuery<FetchResponse>({
-    queryKey: ['posts'],
-    queryFn: ({ pageParam = 0 }) => fetchPosts(pageParam as number),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => {
-      return lastPage.formattedPosts.length === 6 ? allPages.length : undefined;
-    },
-  });
+const {
+  data,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
+  isLoading,
+} = useInfiniteQuery<FetchResponse>({
+  queryKey: ['posts', session?.user?.email], // session email을 queryKey에 추가
+  queryFn: ({ pageParam = 0 }) => fetchPosts(pageParam as number),
+  initialPageParam: 0,
+  enabled: !!session?.user?.email, // session 값이 없으면 비활성화
+  getNextPageParam: (lastPage, allPages) => {
+    return lastPage.formattedPosts.length === 6 ? allPages.length : undefined;
+  },
+});
 
   const posts = data?.pages.flatMap((page) => page.formattedPosts) || [];
 
@@ -130,7 +140,6 @@ const goToPost = (id : number) => {
             field={item.post.field}
             name={item.user.name}
             image={item.user.image}
-            goPost={goToPost}
             fieldColor={getFieldInfo}
           />
         ))}

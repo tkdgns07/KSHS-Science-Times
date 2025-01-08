@@ -1,6 +1,25 @@
 import { NextResponse } from 'next/server';
 import prisma from "../../../../prisma/client";
 
+interface PostProps {
+    id: number;
+    title: string;
+    thumbnail: string;
+    details: string;
+    field: number;
+    content : any;
+}
+
+interface UserProps {
+    name: string;
+    image: string;
+}
+
+interface fetchResponse {
+    post : PostProps
+    user : UserProps
+}
+
 export async function POST(req: Request) {
   const body = await req.json();
   const { title, thumbnail, details, content, userId, field } = body;
@@ -97,7 +116,7 @@ export async function GET(
       })
   
       // 포스트 반환
-      return NextResponse.json({post : post, userInfo : userInfo}, { status: 200 });
+      return NextResponse.json({post : post, user : userInfo}, { status: 200 });
     } catch (error) {
       console.error('Error fetching post:', error);
     
@@ -145,8 +164,8 @@ export async function PATCH(req: Request) {
 
     const postId = parseInt(id, 10);
 
-    const body = await req.json();
-    const { title, thumbnail, details, content, field } = body;
+    const body : fetchResponse = await req.json();
+    const { post, user } = body;
   
     try {
     //   const post = await prisma.post.findUnique({
@@ -222,16 +241,10 @@ export async function PATCH(req: Request) {
     //   });
         
         const updatedPost = await prisma.post.update({
-            where : { id : postId },
-            data : {
-                title,
-                thumbnail,
-                details,
-                content,
-                field: field,
-            }
+            where : { id : post.id, user },
+            data : post
         })
-  
+
       return NextResponse.json(updatedPost, { status: 200 });
     } catch (error) {
       return NextResponse.json({ error: "Failed to update post", message : "게시물은 업데이트하지 못했습니다." }, { status: 500 });

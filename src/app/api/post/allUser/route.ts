@@ -17,7 +17,7 @@ interface Post {
 export async function POST(request: Request) {
     const body = await request.json();
     const { userEmail } = body
-  
+    
     const url = new URL(request.url);
 
     const skip = url.searchParams.get('skip');

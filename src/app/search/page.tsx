@@ -107,10 +107,6 @@ export default function Home() {
     };
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  const goToPost = (id: number) => {
-    router.push(`/post/edit?id=${id}`);
-  };
-
   const getFieldInfo = (field: number, returnColor: boolean): string => {
     const fieldItem = fieldList.find((item) => item.field === field);
     if (fieldItem) {
@@ -128,7 +124,7 @@ export default function Home() {
   return (
     <Suspense fallback={<Loader />}>
       <main className="flex flex-col h-full w-full items-center">
-        <div className="top-[6px] z-50 fixed w-full flex justify-center">
+        <div className="top-[6px] z-50 fixed flex justify-center">
           <Search initialContent={param} />
         </div>
         <div className={`grid md:grid-cols-3 grid-cols-2 gap-10`}>
@@ -144,7 +140,6 @@ export default function Home() {
                 field={item.post.field}
                 name={item.user.name}
                 image={item.user.image}
-                goPost={goToPost}
                 fieldColor={getFieldInfo}
               />
             ))

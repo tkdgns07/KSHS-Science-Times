@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
@@ -48,6 +48,12 @@ const Search: React.FC<SearchProps> = ({ initialContent }) => {
         }
     };
 
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [inputRef])
+
     // `before` 변경 핸들러
     const handleChangeBe = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -70,12 +76,12 @@ const Search: React.FC<SearchProps> = ({ initialContent }) => {
     }
 
     return (
-        <div className="bg-grayc mb-[60px] px-[10px] py-[10px] rounded-full z-40 flex">
-            <span ref={spanRef} className="absolute invisible whitespace-pre">
+        <div className="bg-grayc mb-[60px] px-[10px] py-[5px] rounded-full z-40 flex">
+            <span ref={spanRef} className="absolute invisible whitespace-pre text-sm">
                 {splitInput.before || '유저 검색'}
             </span>
             {inputUser && (
-                <div className="p-[5px] rounded-full bg-blue-600 flex items-center text-white mr-[10px]">
+                <div className="p-[5px] rounded-full bg-blue-600 flex text-sm items-center text-white mr-[10px]">
                     <input
                         placeholder="유저 검색"
                         value={splitInput.before}
@@ -93,7 +99,7 @@ const Search: React.FC<SearchProps> = ({ initialContent }) => {
                 placeholder={inputUser ? "제목 검색" : "@ 로 유저 검색"}
                 value={splitInput.after}
                 onChange={handleChangeAf}
-                className="text-lg bg-transparent focus:outline-none text-white w-[800px]"
+                className="text-sm bg-transparent focus:outline-none text-white w-[800px]"
             />
             <button
                 onClick={goSearch}

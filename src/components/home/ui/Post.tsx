@@ -1,4 +1,6 @@
 import styles from "../styles.module.css"
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 type PostProps = {
     id: number;
@@ -9,11 +11,21 @@ type PostProps = {
     field: number;
     name: string;
     image: string;
-    goPost: (id : number) => void;
     fieldColor: (field : number, returnColor: boolean) => string;
 };
 
-const Post: React.FC<PostProps> = ({ id, width, title, thumbnail, details, field, name ,image, goPost, fieldColor }) => {
+const Post: React.FC<PostProps> = ({ id, width, title, thumbnail, details, field, name ,image, fieldColor }) => {
+        const router = useRouter()
+        const { data : session } = useSession()
+
+        const goToPost = () => {
+            if (session && session.user.name == name) {
+                router.push(`/post/edit?id=${id}`)
+                return
+            }
+            router.push(`/post/read?id=${id}`)
+        }
+
         return (
             <div
                 className={`relative h-auto inline-block`}
@@ -47,7 +59,7 @@ const Post: React.FC<PostProps> = ({ id, width, title, thumbnail, details, field
                             <div className="w-full flex flex-col items-end">
                                 <div className="relative w-[60px] h-[30px]">
                                     <div className={`absolute w-full h-full`}>
-                                        <button onClick={()=>goPost(id)} className="w-full h-full">
+                                        <button onClick={goToPost} className="w-full h-full">
                                             <div className={`w-[60px] h-[30px] bg-black absolute ${styles.cardButtonPa} flex justify-center items-center z-20 -translate-y-1/2`}>
                                                 <p className="z-30 text-background !text-sx font-bold impactFont">보기</p>
                                             </div>
