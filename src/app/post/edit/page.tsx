@@ -69,7 +69,7 @@ export default function Page() {
 
             setPostData(data)
 
-            if (postData && postData.user.name !== session?.user.name && session) {
+            if (postData?.user.name !== session?.user.name || session) {
                 toast.warning("페이지를 다룰 권한이 없습니다.")
                 router.push("/")
                 return;
