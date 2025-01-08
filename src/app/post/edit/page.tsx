@@ -68,12 +68,6 @@ export default function Page() {
             const { data } = await axios.get(`/api/post?id=${id}`);
 
             setPostData(data)
-
-            if (postData?.user.name !== session?.user.name || session) {
-                toast.warning("페이지를 다룰 권한이 없습니다.")
-                router.push("/")
-                return;
-            }
         } catch (error) {
             toast.error('포스트 데이터를 불러오는 데 실패했습니다.');
             router.push('/error');
@@ -86,7 +80,15 @@ export default function Page() {
         if (id !== undefined) {
             getPostData();
         }
-    }, [id, session?.user.id]); // 의존성 배열에 id와 session.user.id 추가
+    }, [id, session?.user.id]);
+
+    useEffect(() => {
+        if ((postData && postData.user.name !== session?.user.name || !session) || status !== "authenticated") {
+            toast.warning("페이지를 다룰 권한이 없습니다.")
+            router.push("/")
+            return;
+        }
+    }, [session])
 
     const handleSave = async () => {
         setIsSaving(true)
