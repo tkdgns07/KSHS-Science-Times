@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 import streamifier from 'streamifier';
-import prisma from "../../../../../../prisma/client"
+import prisma from "../../../../../../prisma/client";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: 'editorjs',
+          type: 'upload',       // 공개 업로드
         },
         (error, result) => {
           if (error) reject(error);
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
       public_id: string;
     };
 
-    // Save the image information to the database
+    // Save the file information to the database
     try {
       await prisma.fileDB.create({
         data: {
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
     } catch (dbError) {
       console.error('Database error:', dbError);
       return NextResponse.json(
-        { error: "Failed to save image info to the database" },
+        { error: "Failed to save file info to the database" },
         { status: 500 }
       );
     }

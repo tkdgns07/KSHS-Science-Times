@@ -164,8 +164,8 @@ export async function PATCH(req: Request) {
 
     const postId = parseInt(id, 10);
 
-    const body : fetchResponse = await req.json();
-    const { post, user } = body;
+    const body = await req.json();
+    const { postData } = body;
   
     try {
     //   const post = await prisma.post.findUnique({
@@ -241,13 +241,13 @@ export async function PATCH(req: Request) {
     //   });
         
         const updatedPost = await prisma.post.update({
-            where : { id : post.id, user },
-            data : post
+            where : { id : postData.post.id, user : postData.user },
+            data : postData.post
         })
 
       return NextResponse.json(updatedPost, { status: 200 });
     } catch (error) {
-      return NextResponse.json({ error: "Failed to update post", message : "게시물은 업데이트하지 못했습니다." }, { status: 500 });
+      return NextResponse.json({ error: error, message : "게시물은 업데이트하지 못했습니다." }, { status: 500 });
     }
   }
   
