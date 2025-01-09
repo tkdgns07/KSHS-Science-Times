@@ -61,8 +61,8 @@ const Post: React.FC<PostProps> = ({ id, width, title, thumbnail, details, field
                         >
                             <p className="text-xs text-white">{fieldColor(field, false)}</p>
                         </div>
-                        <p className="font-bold text-lg text-maintext">{title}</p>
-                        <p className="text-xs text-subtext">{details}</p>
+                        <p className={`font-bold text-lg text-maintext ${styles.truncatedText}`}>{title}</p>
+                        <p className={`text-xs text-subtext ${styles.truncatedText}`}>{details}</p>
                         <div className="flex items-center mt-[5px] cursor-pointer">
                             <img src={image} alt="아바타" className="w-[15px] h-[15px] object-cover rounded-full overflow-hidden" />
                             <p className="font-bold text-sm impactFont ml-[5px] mt-[2px]">{name}</p>

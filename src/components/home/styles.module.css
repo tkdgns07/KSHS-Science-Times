@@ -20,3 +20,10 @@
 .cardButtonPa {
     transition: transform 0.1s ease-in-out;
 }
+.truncatedText {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 두 줄까지만 표시 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 넘치는 텍스트는 '...'으로 표시 */
+}
