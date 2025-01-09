@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   const skipInt = parseInt(skip);
 
   const parts = contentParam.split("$%^");
-  const userNameWhere = parts[0] ? { user: { name: parts[0].str.substring(1) } } : {};
+  const userNameWhere = parts[0] ? { user: { name: parts[0].substring(1) } } : {};
   const tags: string[] = parts[1].split(" ");
 
   const posts: Post[] = await prisma.post.findMany({

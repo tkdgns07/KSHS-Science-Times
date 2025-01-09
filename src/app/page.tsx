@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Search from '@/components/home/ui/Search';
 import Loader from '@/components/ui/Loader';
+import { it } from 'node:test';
 
 interface PostInfo {
   id: number;
@@ -123,6 +124,7 @@ async function fetchPosts(pageParam: number): Promise<FetchResponse> {
             name={item.user.name}
             image={item.user.image}
             fieldColor={getFieldInfo}
+            createdAt={item.post.createdAt}
           />
         ))}
       </div>

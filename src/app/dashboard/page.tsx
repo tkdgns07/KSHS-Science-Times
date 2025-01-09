@@ -141,6 +141,7 @@ const {
             name={item.user.name}
             image={item.user.image}
             fieldColor={getFieldInfo}
+            createdAt={item.post.createdAt}
           />
         ))}
       </div>
