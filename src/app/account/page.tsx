@@ -44,8 +44,26 @@ export default function Page () {
         fileInputRef.current?.click();
     };
 
+    const handleInputName = () => {
+        try {
+            if (!inputName) {
+                toast.warning("이름을 입력해주세요.")
+                return
+            }
+            axios.post('/api/user/changeName', {
+                email : session?.user.email,
+                changedName : inputName
+            })
+
+            toast.success("이름 변경에 성공했습니다.")
+        } catch (error) {
+            toast.error("이름 변경에 실패했습니다.")
+        }
+    }
+
     return (
-        <main className="flex flex-col w-[800px]">
+        <main className="flex flex-col w-full items-center">
+            <div className="w-[800px]">
             <div className="p-[20px] border rounded-lg border-black flex items-center w-auto mb-[50px] justify-between">
                 <div className="mr-[100px]">
                     <p className="text-xl mb-[20px]">Avatar</p>
@@ -71,12 +89,21 @@ export default function Page () {
                     <p className="text-xl mb-[20px]">Name</p>
                     <p>이름을 수정할 수 있습니다. 되도록 학번 이름으로 설정해주세요</p>
                 </div>
+                <div className="relative">
                 <input
                     placeholder="Name"
                     value={inputName}
                     onChange={(e) => setInputName(e.target.value)}
-                    className="text-lg font-bold border rounded-lg p-[10px]"
+                    className="text-md border rounded-sm outline-none h-[40px] px-[10px] w-full border-black"
                 />
+                <button
+                    className="absolute h-[40px] rounded-r-sm top-0 right-0 px-[10px] border flex items-center border-black bg-black"
+                    onClick={handleInputName}
+                >
+                    <p className="text-white">업로드</p>
+                </button>
+                </div>
+            </div>
             </div>
         </main>
     )
