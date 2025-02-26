@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const uploadResult = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          folder: 'editorjs', // 원하는 Cloudinary 폴더
+          folder: 'editorjs',
         },
         (error, result) => {
           if (error) reject(error);
